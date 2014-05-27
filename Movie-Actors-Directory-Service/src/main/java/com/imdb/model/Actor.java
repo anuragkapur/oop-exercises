@@ -14,7 +14,7 @@ public class Actor {
     private double height;
     private Date dateOfBirth;
 
-    public Actor(String name, float height, Date dateOfBirth) {
+    public Actor(String name, double height, Date dateOfBirth) {
         this.name = name;
         this.height = height;
         this.dateOfBirth = dateOfBirth;
@@ -40,7 +40,7 @@ public class Actor {
         return height;
     }
 
-    public void setHeight(float height) {
+    public void setHeight(double height) {
         this.height = height;
     }
 

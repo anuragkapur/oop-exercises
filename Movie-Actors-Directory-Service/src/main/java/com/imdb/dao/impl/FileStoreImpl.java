@@ -9,7 +9,6 @@ import com.imdb.model.Actor;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,12 +23,15 @@ import java.util.List;
 
 public class FileStoreImpl implements ActorDAO {
 
-    private static final String DB_FILE_DIR = "src/main/resources/";
-    private static final String DB_FILE_NAME = "actorsDirectory.db";
     private static List<Actor> actors = null;
+    private String fileName;
+
+    public FileStoreImpl(String fileName) throws DBException {
+        this.fileName = fileName;
+    }
 
     @Override
-    public List<Actor> getActorByName(String name) throws DBException {
+    public synchronized List<Actor> getActorByName(String name) throws DBException {
 
         if (actors == null) {
             actors = getActorsFromFile();
@@ -60,11 +62,15 @@ public class FileStoreImpl implements ActorDAO {
     }
 
     @Override
-    public void upsertActor(Actor actor) throws DBException {
+    public synchronized void upsertActor(Actor actor) throws DBException {
+
+        System.out.println("upsert called");
 
         if (actors == null) {
             actors = getActorsFromFile();
         }
+
+        System.out.println("last actor height :: " + actors.get(actors.size()-1).getHeight());
 
         if (actor.getActorId() == null) {
             int nextActorId = ActorIdGenerator.getGetNextId();
@@ -79,9 +85,11 @@ public class FileStoreImpl implements ActorDAO {
     }
 
     private void updateActorsFile(List<Actor> actors) throws DBException {
+
         FileWriter writer = null;
+
         try {
-            writer = new FileWriter(DB_FILE_DIR+DB_FILE_NAME);
+            writer = new FileWriter(this.fileName);
             for (Actor actor : actors) {
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(actor.getName()).append(",");
@@ -103,7 +111,6 @@ public class FileStoreImpl implements ActorDAO {
             }
         }
 
-
         // refresh in memory store
         FileStoreImpl.actors = getActorsFromFile();
     }
@@ -111,17 +118,10 @@ public class FileStoreImpl implements ActorDAO {
     private List<Actor> getActorsFromFile() throws DBException {
 
         List<Actor> actors = new ArrayList<>();
-        URL fileUrl = FileStoreImpl.class.getClassLoader().getResource(DB_FILE_NAME);
         int currentLargestId = -1;
 
-        if (fileUrl == null) {
-            System.out.println("File URL null. EXITING!");
-            throw new DBException("DB File Not Found");
-        }
-
-        String filePath = fileUrl.getPath();
         try {
-            BufferedReader reader = Files.newBufferedReader(Paths.get(filePath), StandardCharsets.UTF_8);
+            BufferedReader reader = Files.newBufferedReader(Paths.get(this.fileName), StandardCharsets.UTF_8);
             String strLine;
             while ((strLine = reader.readLine()) != null) {
                 String actorRecordElements[] = strLine.split(",");
