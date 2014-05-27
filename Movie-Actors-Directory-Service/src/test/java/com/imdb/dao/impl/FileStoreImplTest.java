@@ -70,6 +70,9 @@ public class FileStoreImplTest {
             }
         }.start();
 
+        Actor actor = fileStore.getActorById("1004");
+        Assert.assertEquals("Johnny Depp", actor.getName());
+
         new Thread() {
             public void run() {
                 Actor actor = new Actor(uniqueActorName, 1.4, new Date());

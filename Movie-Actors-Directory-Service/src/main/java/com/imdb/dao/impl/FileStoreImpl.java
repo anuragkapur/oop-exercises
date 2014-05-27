@@ -47,7 +47,7 @@ public class FileStoreImpl implements ActorDAO {
     }
 
     @Override
-    public Actor getActorById(String actorId) throws DBException {
+    public synchronized Actor getActorById(String actorId) throws DBException {
 
         if (actors == null) {
             actors = getActorsFromFile();
