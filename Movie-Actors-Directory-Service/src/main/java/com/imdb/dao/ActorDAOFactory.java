@@ -1,5 +1,6 @@
 package com.imdb.dao;
 
+import com.imdb.dao.exception.DBException;
 import com.imdb.dao.impl.FileStoreImpl;
 
 /**
@@ -9,9 +10,17 @@ import com.imdb.dao.impl.FileStoreImpl;
 
 public class ActorDAOFactory {
 
-    private static ActorDAO actorDAO = new FileStoreImpl();
+    private static final String DB_FILE_NAME = "Movie-Actors-Directory-Service/actorsDirectory.db";
+    private static ActorDAO actorDAO;
 
     public static ActorDAO getDAO() {
+        if (actorDAO == null) {
+            try {
+                actorDAO = new FileStoreImpl(DB_FILE_NAME);
+            } catch (DBException e) {
+                e.printStackTrace();
+            }
+        }
         return actorDAO;
     }
 }
