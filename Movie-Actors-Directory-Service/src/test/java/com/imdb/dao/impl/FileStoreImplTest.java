@@ -81,6 +81,8 @@ public class FileStoreImplTest {
             }
         }.start();
 
+        Assert.assertEquals(2, fileStore.getActorByName(uniqueActorName).size());
+
         Thread.sleep(3000);
     }
 }
